@@ -18,11 +18,13 @@ import { Logger } from "bee-agent-framework/logger/logger";
 const llm = WatsonXChatLLM.fromPreset("meta-llama/llama-3-1-70b-instruct", {
     apiKey: process.env.WATSONX_API_KEY,
     projectId: process.env.WATSONX_PROJECT_ID,
-    parameters: {
-      decoding_method: "greedy",
-      max_new_tokens: 50,
-    },
+    parameters: defaultParameters => ({
+        ...defaultParameters,
+      }),
   });
+  
+  // Example from slack thread https://ibm-research.slack.com/archives/C07FFLHC2RF/p1731434798637629
+  //parameters: defaultParameters => ({ ...defaultParameters, someOverride: myValue, otherOverride: otherValue }),
   
   console.info("Meta", await llm.meta());
   

@@ -61,7 +61,13 @@ import {
 
        // Debugging sys_id
   
-      const url = `${instanceUrl}/api/now/table/incident/${input.sys_id}`;
+      // const url = `${instanceUrl}/api/now/table/incident/${input.sys_id}`;
+      const url = new URL(`/api/now/table/incident/${input.sys_id}`, instanceUrl);
+
+      // Add query parameters
+      url.searchParams.append("sysparm_fields", "sys_id,number,short_description,priority,state");
+      url.searchParams.append("sysparm_limit", "1");
+
       const headers = {
         "Content-Type": "application/json",
         Authorization: "Basic " + Buffer.from(`${username}:${password}`).toString("base64"),
@@ -73,17 +79,21 @@ import {
           throw new Error(`Failed to fetch incident: ${response.statusText}`);
         }
   
-        const rawData: IncidentRecordResponse = await response.json();
+        // const jsonResponse: IncidentRecordResponse = await response.json();
+        const jsonResponse = await response.json() as { result: IncidentRecordResponse };
+        const rawData: IncidentRecordResponse = jsonResponse.result;
+
 
         // Explicitly define the fields we want to send back
         const data: IncidentRecordResponse = {
-            sys_id: rawData.sys_id,
+            sys_id: rawData?.sys_id,
             number: rawData.number,
             short_description: rawData.short_description,
             description: rawData.description,
             priority: rawData.priority,
             state: rawData.state,
         };
+        // console.log("Trimmed API Response from ServiceNow: ", data);
   
         // Return an instance of JSONToolOutput
         return new JSONToolOutput<IncidentRecordResponse>(data);
